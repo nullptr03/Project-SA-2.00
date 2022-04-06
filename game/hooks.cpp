@@ -7,19 +7,9 @@ extern CGame *pGame;
 
 uint16_t nCurrentRenderObject = 0;
 
-void MainLoop();
-
 extern "C" uintptr_t get_lib() 
 {
  	return g_libGTASA;
-}
-
-void (*Render2dStuff)();
-void Render2dStuff_hook()
-{
-	Render2dStuff();
-	MainLoop();
-	return;
 }
 
 int (*Idle)(void *thiz, bool a2);
@@ -244,14 +234,13 @@ uintptr_t CTxdStore_TxdStoreFindCB_hook(const char *szTexture)
 void InstallSAMPHooks()
 {
 	ARMHook::installPLTHook(g_libGTASA+0x675DE4, (uintptr_t)AND_TouchEvent_hook, (uintptr_t*)&AND_TouchEvent);
-	ARMHook::installPLTHook(g_libGTASA+0x67589C, (uintptr_t)Render2dStuff_hook, (uintptr_t*)&Render2dStuff);
 	ARMHook::installPLTHook(g_libGTASA+0x6710C4, (uintptr_t)Idle_hook, (uintptr_t*)&Idle);
 	ARMHook::installPLTHook(g_libGTASA+0x676034, (uintptr_t)CTxdStore_TxdStoreFindCB_hook, (uintptr_t*)&CTxdStore_TxdStoreFindCB);
 }
 
 void InstallGlobalHooks()
 {
-	ARMHook::installPLTHook(g_libGTASA+0x674C68, (uintptr_t)CStream_InitImageList_hook, (uintptr_t*)&CStream_InitImageList); 
+	ARMHook::installPLTHook(g_libGTASA+0x674C68, (uintptr_t)CStream_InitImageList_hook, (uintptr_t*)&CStream_InitImageList);
 	ARMHook::installPLTHook(g_libGTASA+0x672468, (uintptr_t)CPools_Initialise_hook, (uintptr_t*)&CPools_Initialise);
 	ARMHook::installPLTHook(g_libGTASA+0x675554, (uintptr_t)CPlaceable_InitMatrixArray_hook, (uintptr_t*)&CPlaceable_InitMatrixArray);
 	InstallSAMPHooks();
