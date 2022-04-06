@@ -5,8 +5,6 @@
 
 extern CGame *pGame;
 
-uintptr_t dwPlayerPedPtrs[PLAYER_PED_SLOTS];
-
 extern char* WORLD_PLAYERS;
 
 PED_TYPE* FindPlayerPed(int iID)

@@ -20,11 +20,7 @@ public:
 	CGame();
 	~CGame() {};
 	
-	void StartGame();
-	void Initialize();
 	void Process();
-	
-	const char* GetDataDirectory();
 	
 	bool IsGamePaused();
 	float GetFPS();

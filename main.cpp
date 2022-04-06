@@ -3,6 +3,9 @@
 #include "util/armhook.h"
 #include "log.h"
 
+#include "vendor/rapidjson/document.h"
+using namespace rapidjson;
+
 uintptr_t g_libPSA = 0;
 uintptr_t g_libGTASA = 0;
 
@@ -11,30 +14,11 @@ CGame *pGame = nullptr;
 void InitializeRenderWare();
 void InstallGlobalHooks();
 void ApplyGlobalPatches();
-
-void DoInitStuff()
-{
-	static bool bGameInited = false;
-
-	if(!bGameInited)
-	{
-		pGame->Initialize();
-		bGameInited = true;
-		return;
-	}
-}
-
-void MainLoop()
-{
-	DoInitStuff();
-}
+void InitScripting();
 
 void *Init(void *p)
 {
-	/*while ( *(uintptr_t *)(g_libGTASA + 0xA987C8) != 7 )
-		usleep(500);
-	pGame->StartGame();*/
-
+	InitScripting();
 	pthread_exit(0);
 }
 
@@ -42,7 +26,7 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved)
 {
 	__android_log_print(ANDROID_LOG_DEBUG, "AXLD", "SAMP library loaded! Build time: " __DATE__ " " __TIME__);
 
-	g_libGTASA = ARMHook::getLibraryAddress("libGTASA.so");
+	g_libGTASA = ARMHook::getLibraryAddress("_GTA3.so");
 	if(g_libGTASA == 0)
 	{
 		__android_log_print(ANDROID_LOG_DEBUG, "AXLD", "ERROR: libGTASA.so address not found!");

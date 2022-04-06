@@ -2,12 +2,9 @@
 #include "game.h"
 #include "../util/armhook.h"
 
-void ApplySAMPPatchesInGame();
-void InitScripting();
-
 CGame::CGame()
 {
-	
+
 }
 
 float CGame::GetFPS()
@@ -16,23 +13,7 @@ float CGame::GetFPS()
 	return (( float (*)())(g_libGTASA+0x3F54C4+1))();
 }
 
-void CGame::StartGame()
-{
-	ApplySAMPPatchesInGame();
-	InitScripting();
-}
-
-void CGame::Initialize()
-{
-	
-}
-
 void CGame::Process() { }
-
-const char* CGame::GetDataDirectory()
-{
-	return (const char*)(g_libGTASA+0x6D687C); // StorageRootBuffer
-}
 
 bool CGame::IsGamePaused()
 {

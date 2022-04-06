@@ -66,7 +66,7 @@ void FLog(const char *fmt, ...)
 	if(!pGame) return;
 	if(getGameDataStorage() && flLog == nullptr)
 	{
-		sprintf(buffer, "%sSAMP/samp.log", getGameDataStorage());
+		sprintf(buffer, "%spsa.log", getGameDataStorage());
 		flLog = fopen(buffer, "w");
 	}
 
