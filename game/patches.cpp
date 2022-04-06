@@ -17,10 +17,6 @@ void ApplyGlobalPatches()
 	ARMHook::writeMemory(g_libGTASA+0x468B8A, (uintptr_t)"\xF7\x25", 2);
 	ARMHook::writeMemory(g_libGTASA+0x468BCC, (uintptr_t)"\xF7\x28", 2);
 
-	// blx CTaskComplexEnterCarAsDriver constructor in CPlayerInfo::Process (replace operator new task)
-	ARMHook::writeMemory(g_libGTASA+0x40AC28, (uintptr_t)"\x8F\xF5\x3A\xEF", 4); 
-	ARMHook::makeNOP(g_libGTASA+0x40AC30, 2); // CTaskComplexEnterCarAsDriver
-
 	// RpWorldAddLight from ~LightsCreate
 	ARMHook::makeNOP(g_libGTASA+0x46FC54, 2);
 

@@ -81,35 +81,6 @@ void CStream_InitImageList_hook()
 	(( uint32_t (*)(char*, uint32_t))(g_libGTASA+0x2CF760+1))("TEXDB\\GTA_INT.IMG", 1);
 }
 
-extern "C" bool TaskEnterVehicle(uintptr_t pVehicle, uintptr_t a2)
-{
-	// CTask::operator new
-	uintptr_t pTask = (( uintptr_t (*)())(g_libGTASA+0x4D6A01))(); 
-
-	// CTaskComplexEnterCarAsDriver::CTaskComplexEnterCarAsDriver
-  	(( void (*)(uintptr_t, uintptr_t))(g_libGTASA+0x4F6F71))(pTask, pVehicle); 
-
-  	// CTaskManager::SetTask
-  	(( void (*)(uintptr_t, uintptr_t, int, int))(g_libGTASA+0x53390B))(a2, pTask, 3, 0); 
-
-	return true;
-}
-
-void __attribute__((naked)) TaskEnterVehicle_hook(uint32_t thiz, uint32_t pVehicle)
-{
-	// 2.0
-	__asm__ volatile("push {r1-r11, lr}\n\t"
-		"mov r0, r8\n\t"
-		"adds r1, r6, #4\n\t"
-		"blx TaskEnterVehicle\n\t"
-		"pop {r1-r11, lr}\n\t"
-		"blx get_lib\n\t"
-		"add r0, #0x400000\n\t"
-        "add r0, #0xAC00\n\t"
-        "add r0, #0x41\n\t"
-        "mov pc, r0\n\t");
-}
-
 void (*CPools_Initialise)(void);
 void CPools_Initialise_hook(void)
 {
@@ -275,7 +246,6 @@ void InstallSAMPHooks()
 	ARMHook::installPLTHook(g_libGTASA+0x675DE4, (uintptr_t)AND_TouchEvent_hook, (uintptr_t*)&AND_TouchEvent);
 	ARMHook::installPLTHook(g_libGTASA+0x67589C, (uintptr_t)Render2dStuff_hook, (uintptr_t*)&Render2dStuff);
 	ARMHook::installPLTHook(g_libGTASA+0x6710C4, (uintptr_t)Idle_hook, (uintptr_t*)&Idle);
-	ARMHook::injectCode(g_libGTASA+0x40AC28, (uintptr_t)TaskEnterVehicle_hook, 0);
 	ARMHook::installPLTHook(g_libGTASA+0x676034, (uintptr_t)CTxdStore_TxdStoreFindCB_hook, (uintptr_t*)&CTxdStore_TxdStoreFindCB);
 }
 
