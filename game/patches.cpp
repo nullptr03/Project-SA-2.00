@@ -6,11 +6,6 @@
 
 uint8_t g_fps = 90;
 
-void InstallVehicleEngineLightPatches()
-{
-	
-}
-
 void ApplyGlobalPatches()
 {
 	// _rwOpenGLRasterCreate
