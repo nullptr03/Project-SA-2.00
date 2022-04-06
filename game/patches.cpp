@@ -1,10 +1,57 @@
 #include <android/log.h>
 
 #include "../main.h"
+#include "../game/game.h"
 #include "../util/ARMHook.h"
 #include "common.h"
 
+#include "vendor/rapidjson/document.h"
+#include "vendor/rapidjson/filereadstream.h"
+using namespace rapidjson;
+
 uint8_t g_fps = 90;
+
+void ReadPatchSettingFile()
+{
+	char file[0x7F];
+	sprintf(file, "%spsa.json", getGameDataStorage());
+	FILE* fp = fopen(file, "r");
+ 
+	char readBuffer[65536];
+	FileReadStream is(fp, readBuffer, sizeof(readBuffer));
+	
+	Document document;
+	document.ParseStream(is);
+	
+	fclose(fp);
+	assert(document["i"].IsInt());
+	g_fps = document["i"].GetInt();
+}
+
+void RedirectScreen(uintptr_t addr, uintptr_t to)
+{
+	if(!addr) return;
+	if(addr & 1)
+	{
+		addr &= ~1;
+		if (addr & 2)
+		{
+			aml->PlaceNOP(addr, 1);
+			addr += 2;
+		}
+		uint32_t hook[2];
+		hook[0] = 0xF000F8DF;
+		hook[1] = to;
+		ARMHook::writeMemory(addr, (uintptr_t)hook, sizeof(hook));
+	}
+	else
+	{
+		uint32_t hook[2];
+		hook[0] = 0xE51FF004;
+		hook[1] = to;
+		ARMHook::writeMemory(addr, (uintptr_t)hook, sizeof(hook));
+	}
+}
 
 void ApplyGlobalPatches()
 {
@@ -21,14 +68,21 @@ void ApplyGlobalPatches()
 	ARMHook::makeNOP(g_libGTASA+0x46FC54, 2);
 
 	// CFont::PrintString from DisplayFPS
-	ARMHook::makeNOP(g_libGTASA+0x3F5670, 2);
+	//ARMHook::makeNOP(g_libGTASA+0x3F5670, 2);
 
 	// NOP RwCameraEndUpdate from Idle
 	ARMHook::makeNOP(g_libGTASA+0x3F6C8C, 2);
-}
 
-void ApplySAMPPatchesInGame()
-{
+	// loading screen size fix
+	ARMHook::writeMemory(g_libGTASA+0x43B07B, (uintptr_t)"\xD0", 1); // BEQ
+	ARMHook::writeMemory(g_libGTASA+0x43B0C6, (uintptr_t)"\xB6\xEE\x06\x0A", 4); // On BEQ
+	ARMHook::writeMemory(g_libGTASA+0x43B07C, (uintptr_t)"\xB5\xEE\x04\x0A\x00\xBF\x00\xBF\x00\xBF", 10); // Otherwise
+	RedirectScreen(g_libGTASA+0x43B024+1, g_libGTASA+0x43B05A+1); // Skip checks... Currently fullscreen splashes are for 4:3 screens and 16:9
+
+	// uv anim fix
+	ARMHook::unprotect(g_libGTASA+0x6BD1E4);
+	*(bool*)(g_libGTASA+0x6BD1E4) = true;
+
 	// Patch for fps at DoGameState
 	ARMHook::unprotect(g_libGTASA+0x5E4978);
 	ARMHook::unprotect(g_libGTASA+0x5E4990);
