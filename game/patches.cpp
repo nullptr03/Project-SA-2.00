@@ -36,7 +36,7 @@ void RedirectScreen(uintptr_t addr, uintptr_t to)
 		addr &= ~1;
 		if (addr & 2)
 		{
-			aml->PlaceNOP(addr, 1);
+			ARMHook::makeNOP(addr, 1);
 			addr += 2;
 		}
 		uint32_t hook[2];
