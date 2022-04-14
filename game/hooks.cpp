@@ -4,6 +4,7 @@
 #include "game.h"
 
 extern CGame *pGame;
+CProjectSA::FPSFix *g_fpsFix = new CProjectSA::FPSFix();
 
 uint16_t nCurrentRenderObject = 0;
 
@@ -16,6 +17,7 @@ int (*Idle)(void *thiz, bool a2);
 int Idle_hook(void *thiz, bool a2)
 {
 	int result = Idle(thiz, a2);
+	CProjectSA::Update();
 	RwCameraEndUpdate(*(RwCamera**)(g_libGTASA+0x9FC93C));
 	return result;
 }
@@ -27,48 +29,6 @@ void AND_TouchEvent_hook(int type, int num, int x, int y)
 		return AND_TouchEvent(type, num, x, y);
 	
 	return AND_TouchEvent(type, num, x, y);
-}
-
-void (*CStream_InitImageList)();
-void CStream_InitImageList_hook()
-{
-	ARMHook::unprotect(g_libGTASA+0x792DA8);
-	ARMHook::unprotect(g_libGTASA+0x792DA4);
-	ARMHook::unprotect(g_libGTASA+0x792DD4);
-	ARMHook::unprotect(g_libGTASA+0x792DD8);
-	ARMHook::unprotect(g_libGTASA+0x792E04);
-	ARMHook::unprotect(g_libGTASA+0x792E08);
-	ARMHook::unprotect(g_libGTASA+0x792E34);
-	ARMHook::unprotect(g_libGTASA+0x792E38);
-	ARMHook::unprotect(g_libGTASA+0x792E64);
-	ARMHook::unprotect(g_libGTASA+0x792E68);
-	ARMHook::unprotect(g_libGTASA+0x792E94);
-	ARMHook::unprotect(g_libGTASA+0x792E98);
-	ARMHook::unprotect(g_libGTASA+0x792EC4);
-	ARMHook::unprotect(g_libGTASA+0x792EC8);
-	ARMHook::unprotect(g_libGTASA+0x792EF4);
-	ARMHook::unprotect(g_libGTASA+0x792D78);
-
-  	*(uint8_t*)(g_libGTASA+0x792DA8) = 0;
-  	*(uint32_t*)(g_libGTASA+0x792DA4) = 0;
-  	*(uint32_t*)(g_libGTASA+0x792DD4) = 0;
-  	*(uint8_t*)(g_libGTASA+0x792DD8) = 0;
-  	*(uint32_t*)(g_libGTASA+0x792E04) = 0;
-  	*(uint8_t*)(g_libGTASA+0x792E08) = 0;
-  	*(uint32_t*)(g_libGTASA+0x792E34) = 0;
-  	*(uint8_t*)(g_libGTASA+0x792E38) = 0;
-  	*(uint32_t*)(g_libGTASA+0x792E64) = 0;
-  	*(uint8_t*)(g_libGTASA+0x792E68) = 0;
-  	*(uint32_t*)(g_libGTASA+0x792E94) = 0;
-  	*(uint8_t*)(g_libGTASA+0x792E98) = 0;
-  	*(uint32_t*)(g_libGTASA+0x792EC4) = 0;
-  	*(uint8_t*)(g_libGTASA+0x792EC8) = 0;
-  	*(uint32_t*)(g_libGTASA+0x792EF4) = 0;
-  	*(uint8_t*)(g_libGTASA+0x792D78) = 0;
-
-	// CStreaming::AddImageToList
-	(( uint32_t (*)(char*, uint32_t))(g_libGTASA+0x2CF760+1))("TEXDB\\GTA3.IMG", 1);
-	(( uint32_t (*)(char*, uint32_t))(g_libGTASA+0x2CF760+1))("TEXDB\\GTA_INT.IMG", 1);
 }
 
 void (*CPools_Initialise)(void);
@@ -150,98 +110,21 @@ int CPlaceable_InitMatrixArray_hook()
 	return (( int (*)(uintptr_t, int))(g_libGTASA+0x407F84+1))(g_libGTASA+0x95A988, 10000);
 }
 
-uintptr_t (*CTxdStore_TxdStoreFindCB)(const char *szTexture);
-uintptr_t CTxdStore_TxdStoreFindCB_hook(const char *szTexture)
+void (*ANDRunThread)(void *a1);
+void ANDRunThread_hook(void *a1)
 {
-	uintptr_t pTexture = 0;
-	uintptr_t GTA_INT_DATABASE = (( uintptr_t (*)(const char *))(g_libGTASA+0x1EAC8C+1))("gta_int");
-	uintptr_t GTA3_DATABASE = (( uintptr_t (*)(const char *))(g_libGTASA+0x1EAC8C+1))("gta3");
-	int iDatabaseRegisterCount = *(int*)(g_libGTASA+0x6BD174);
-	if ( iDatabaseRegisterCount )
-	{
-		uintptr_t *pDatabaseRegisterHandleList = *(uintptr_t**)(g_libGTASA+0x6BD17C);
-		if ( iDatabaseRegisterCount < 1 )
-		{
-		GTA_INT_DB:
-			// TextureDatabaseRuntime::Register
-			(( void (*)(uintptr_t))(g_libGTASA+0x1E9BC8+1))(GTA_INT_DATABASE);
-
-			// TextureDatabaseRuntime::GetTexture
-			pTexture = (( uintptr_t (*)(const char *))(g_libGTASA+0x1E9CE4+1))(szTexture);
-
-			// TextureDatabaseRuntime::Unregister
-			(( void (*)(uintptr_t))(g_libGTASA+0x1E9C80+1))(GTA_INT_DATABASE);
-
-			if ( pTexture )
-				return pTexture;
-
-			if ( iDatabaseRegisterCount < 1 )
-			{
-			GTA3_DB:
-				// TextureDatabaseRuntime::Register
-				(( void (*)(uintptr_t))(g_libGTASA+0x1E9BC8+1))(GTA3_DATABASE);
-
-				// TextureDatabaseRuntime::GetTexture
-				pTexture = (( uintptr_t (*)(const char *))(g_libGTASA+0x1E9CE4+1))(szTexture);
-
-				// TextureDatabaseRuntime::Unregister
-				(( void (*)(uintptr_t))(g_libGTASA+0x1E9C80+1))(GTA3_DATABASE);
-
-				if ( pTexture )
-					return pTexture;
-			}
-			else
-			{
-				int iIndex = 0;
-				while(pDatabaseRegisterHandleList[iIndex] != GTA3_DATABASE)
-				{
-					if(++iIndex >= iDatabaseRegisterCount)
-						goto GTA3_DB;
-				}
-			}
-		}
-		else
-		{
-			int iIndex = 0;
-			while(pDatabaseRegisterHandleList[iIndex] != GTA_INT_DATABASE)
-			{
-				if(++iIndex >= iDatabaseRegisterCount)
-					goto GTA_INT_DB;
-			}
-		}
-	}
-
-	// RwTexDictionaryGetCurrent
-	int iParent = (( int (*)())(g_libGTASA+0x1DBA64+1))();
-	if ( !iParent )
-		return 0;
-
-	while ( true )
-	{
-		// RwTexDictionaryFindNamedTexture
-		pTexture = (( uintptr_t (*)(int, const char *))(g_libGTASA+0x1DB9B0+1))(iParent, szTexture);
-		if ( pTexture )
-			break;
-
-		// CTxdStore::GetTxdParent
-		iParent = (( int (*)(int))(g_libGTASA+0x5D428C+1))(iParent);
-		if ( !iParent )
-			return 0;
-	}
-	return pTexture;
-}
-
-void InstallSAMPHooks()
-{
-	ARMHook::installPLTHook(g_libGTASA+0x675DE4, (uintptr_t)AND_TouchEvent_hook, (uintptr_t*)&AND_TouchEvent);
-	ARMHook::installPLTHook(g_libGTASA+0x6710C4, (uintptr_t)Idle_hook, (uintptr_t*)&Idle);
-	ARMHook::installPLTHook(g_libGTASA+0x676034, (uintptr_t)CTxdStore_TxdStoreFindCB_hook, (uintptr_t*)&CTxdStore_TxdStoreFindCB);
+	g_fpsFix->PushThread(gettid());
+	ANDRunThread(a1);
 }
 
 void InstallGlobalHooks()
 {
-	ARMHook::installPLTHook(g_libGTASA+0x674C68, (uintptr_t)CStream_InitImageList_hook, (uintptr_t*)&CStream_InitImageList);
+	g_fpsFix->Init();
+	
+	ARMHook::installPLTHook(g_libGTASA+0x6710C4, (uintptr_t)Idle_hook, (uintptr_t*)&Idle);
+	ARMHook::installHook(g_libGTASA+0x26BF20, (uintptr_t)ANDRunThread_hook, (uintptr_t*)&ANDRunThread);
+	ARMHook::installPLTHook(g_libGTASA+0x675DE4, (uintptr_t)AND_TouchEvent_hook, (uintptr_t*)&AND_TouchEvent);
+
 	ARMHook::installPLTHook(g_libGTASA+0x672468, (uintptr_t)CPools_Initialise_hook, (uintptr_t*)&CPools_Initialise);
 	ARMHook::installPLTHook(g_libGTASA+0x675554, (uintptr_t)CPlaceable_InitMatrixArray_hook, (uintptr_t*)&CPlaceable_InitMatrixArray);
-	InstallSAMPHooks();
 }
