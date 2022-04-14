@@ -2,10 +2,7 @@
 #include "game.h"
 #include "../util/armhook.h"
 
-CGame::CGame()
-{
-
-}
+CGame::CGame() { }
 
 float CGame::GetFPS()
 {

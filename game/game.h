@@ -6,10 +6,12 @@
 #include "SA/CTask.h"
 #include "SA/CTaskManager.h"
 #include "SA/CPedIntelligence.h"
+#include "SA/CRegisteredCorona.h"
 #include "SA/touchinterface.h"
 #include "SA/txdstore.h"
 #include "SA/widget.h"
 
+#include "projectsa.h"
 #include "quaternion.h"
 #include "scripting.h"
 #include "util.h"
