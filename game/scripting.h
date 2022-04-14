@@ -133,8 +133,6 @@ const SCRIPT_COMMAND attach_to_object					= { 0x070A, "iifffiissi" };
 const SCRIPT_COMMAND attach_object_to_object			= { 0x069A, "iiffffff" };
 const SCRIPT_COMMAND attach_object_to_vehicle			= { 0x0681, "iiffffff" };
 const SCRIPT_COMMAND attach_particle_to_actor2			= { 0x066a, "siffffffiv" };
-const SCRIPT_COMMAND make_particle_visible				= { 0x064C, "i" };
-const SCRIPT_COMMAND destroy_particle					= { 0x0650, "i" };
 const SCRIPT_COMMAND put_trailer_on_cab					= { 0x0893, "ii" };
 const SCRIPT_COMMAND detach_trailer_from_cab			= { 0x07AC, "ii" };
 const SCRIPT_COMMAND is_trailer_on_cab					= { 0x07AB, "ii" };
@@ -169,3 +167,7 @@ const SCRIPT_COMMAND play_mission_audio 				= { 0x03D1, "i" };
 const SCRIPT_COMMAND set_mission_audio_position 		= { 0x03D7, "ifff" };
 
 const SCRIPT_COMMAND set_player_drunk_level				= { 0x052C, "ii" };
+
+const SCRIPT_COMMAND create_particle_at					= { 0x016F, "ifffiiiifff" };
+const SCRIPT_COMMAND make_particle_visible				= { 0x064C, "i" };
+const SCRIPT_COMMAND destroy_particle					= { 0x0650, "i" };
