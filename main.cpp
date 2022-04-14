@@ -30,14 +30,14 @@ extern "C" void OnModLoad()
 	if(g_libGTASA == 0)
 	{
 		__android_log_print(ANDROID_LOG_DEBUG, "AXLD", "ERROR: libGTASA.so address not found!");
-		return 0;
+		return;
 	}
 
 	ARMHook::makeRET(g_libGTASA+0x3F6580);
 	ARMHook::initialiseTrampolines(g_libGTASA+0x3F6584, 0x2D2);
 
-	InstallGlobalHooks();
 	CProjectSA::InitPatch();
+	InstallGlobalHooks();
 	InitializeRenderWare();
 
 	pGame = new CGame();
