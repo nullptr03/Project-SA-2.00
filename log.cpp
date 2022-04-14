@@ -91,7 +91,7 @@ void Log::handler(int signum, siginfo_t *info, void* contextPtr)
 	if (Log::act_old.sa_sigaction)
 		Log::act_old.sa_sigaction(signum, info, contextPtr);
 
-	Log::SendCrashLog("segv", "======= SA:MP CRASH LOG =======");
+	Log::SendCrashLog("segv", "======= Project SA CRASH LOG =======");
 	
 	Log::SendCrashLog("segv", "Exception At Address: 0x%X", info->si_addr);
 	
@@ -140,7 +140,7 @@ void Log::handler1(int signum, siginfo_t *info, void* contextPtr)
 	if (Log::act1_old.sa_sigaction)
 		Log::act1_old.sa_sigaction(signum, info, contextPtr);
 
-	Log::SendCrashLog("abrt", "======= SA:MP CRASH LOG =======");
+	Log::SendCrashLog("abrt", "======= Project SA CRASH LOG =======");
 	
 	Log::SendCrashLog("abrt", "Exception At Address: 0x%X", info->si_addr);
 	
@@ -189,7 +189,7 @@ void Log::handler2(int signum, siginfo_t *info, void* contextPtr)
 	if (Log::act2_old.sa_sigaction)
 		Log::act2_old.sa_sigaction(signum, info, contextPtr);
 
-	Log::SendCrashLog("fpe", "======= SA:MP CRASH LOG =======");
+	Log::SendCrashLog("fpe", "======= Project SA CRASH LOG =======");
 	
 	Log::SendCrashLog("fpe", "Exception At Address: 0x%X", info->si_addr);
 
@@ -238,7 +238,7 @@ void Log::handler3(int signum, siginfo_t *info, void* contextPtr)
 	if (Log::act3_old.sa_sigaction)
 		Log::act3_old.sa_sigaction(signum, info, contextPtr);
 
-	Log::SendCrashLog("bus", "======= SA:MP CRASH LOG =======");
+	Log::SendCrashLog("bus", "======= Project SA CRASH LOG =======");
 	
 	Log::SendCrashLog("bus", "Exception At Address: 0x%X", info->si_addr);
 

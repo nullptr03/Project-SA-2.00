@@ -13,18 +13,18 @@ CGame *pGame = nullptr;
 
 void InitializeRenderWare();
 void InstallGlobalHooks();
-void ApplyGlobalPatches();
 void InitScripting();
 
 void *Init(void *p)
 {
+	CProjectSA::InitPatch();
 	InitScripting();
 	pthread_exit(0);
 }
 
 jint JNI_OnLoad(JavaVM *vm, void *reserved)
 {
-	__android_log_print(ANDROID_LOG_DEBUG, "AXLD", "SAMP library loaded! Build time: " __DATE__ " " __TIME__);
+	__android_log_print(ANDROID_LOG_DEBUG, "AXLD", "Project SA library loaded! Build time: " __DATE__ " " __TIME__);
 
 	g_libGTASA = ARMHook::getLibraryAddress("_GTA3.so");
 	if(g_libGTASA == 0)
@@ -43,7 +43,6 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved)
 	ARMHook::makeRET(g_libGTASA+0x3F6580);
 	ARMHook::initialiseTrampolines(g_libGTASA+0x3F6584, 0x2D2);
 
-	ApplyGlobalPatches();
 	InstallGlobalHooks();
 	InitializeRenderWare();
 
@@ -58,7 +57,7 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved)
 
 void JNI_OnUnload(JavaVM *vm, void *reserved)
 {
-	__android_log_print(ANDROID_LOG_DEBUG, "AXLD", "SA-MP library unloaded!");
+	__android_log_print(ANDROID_LOG_DEBUG, "AXLD", "Project SA library unloaded!");
 	ARMHook::uninitializeTrampolines();
 }
 
