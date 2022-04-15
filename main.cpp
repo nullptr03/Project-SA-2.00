@@ -3,6 +3,10 @@
 #include "util/armhook.h"
 #include "log.h"
 
+// AML plugin configuration (only for AML plugins)
+#include "addon/amlmod.h"
+MYMOD(com.rockstargames.gtasa, Project SA AML version, 1.0, Andy Prasetya)
+
 uintptr_t g_libPSA = 0;
 uintptr_t g_libGTASA = 0;
 
@@ -10,7 +14,7 @@ CGame *pGame = nullptr;
 
 void InitializeRenderWare();
 void InitScripting();
-
+ 
 extern "C" void OnModLoad()
 {
 	__android_log_print(ANDROID_LOG_DEBUG, "AXLD", "Project SA library loaded from AML! Build time: " __DATE__ " " __TIME__);
@@ -37,6 +41,17 @@ extern "C" void OnModLoad()
 	InitScripting();
 	
 	Log::Initialize();
+}
+
+extern "C" void OnModPreLoad()
+{
+	__android_log_print(ANDROID_LOG_DEBUG, "AXLD", "Project SA is not support for preloaded");
+}
+
+extern "C" void OnModUnLoad()
+{
+	__android_log_print(ANDROID_LOG_DEBUG, "AXLD", "Project SA library unloaded!");
+	ARMHook::uninitializeTrampolines();
 }
 
 jint JNI_OnLoad(JavaVM *vm, void *reserved)

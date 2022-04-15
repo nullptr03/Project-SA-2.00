@@ -11,6 +11,27 @@ void CProjectSA::InitPatch()
 	// Placeable
 	CProjectSA::Placeable::gMatrixList = ARMHook::getSymbolAddress(GTASA_LIBNAME, "gMatrixList");
 
+	// Coronas
+	CProjectSA::Corona::dwCoronas = ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN8CCoronas8aCoronasE");
+
+	// Timers
+	CProjectSA::Timer::m_snTimeInMilliseconds = (uint16_t*)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN6CTimer22m_snTimeInMillisecondsE");
+
+	// Clocks
+	CProjectSA::Clock::ms_nMillisecondsPerGameMinute = (uint16_t*)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN6CClock29ms_nMillisecondsPerGameMinuteE");
+	CProjectSA::Clock::ms_nLastClockTick = (uint16_t*)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN6CClock17ms_nLastClockTickE");
+	CProjectSA::Clock::ms_nGameClockMonths = (uint16_t*)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN6CClock19ms_nGameClockMonthsE");
+	CProjectSA::Clock::ms_nGameClockDays = (uint16_t*)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN6CClock17ms_nGameClockDaysE");
+	CProjectSA::Clock::ms_nGameClockHours = (uint16_t*)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN6CClock18ms_nGameClockHoursE");
+	CProjectSA::Clock::ms_nGameClockMinutes = (uint16_t*)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN6CClock20ms_nGameClockMinutesE");
+	CProjectSA::Clock::ms_nGameClockSeconds = (uint16_t*)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN6CClock20ms_nGameClockSecondsE");
+	CProjectSA::Clock::CurrentDay = (uint8_t*)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN6CClock10CurrentDayE");
+
+	// Camera
+	CProjectSA::Camera::Scene = ARMHook::getSymbolAddress(GTASA_LIBNAME, "Scene");
+	CProjectSA::Camera::f3rdPersonCHairMultX = (float*)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN7CCamera22m_f3rdPersonCHairMultXE");
+	CProjectSA::Camera::f3rdPersonCHairMultY = (float*)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN7CCamera22m_f3rdPersonCHairMultYE");
+
 	// _rwOpenGLRasterCreate
 	ARMHook::writeMemory(g_libGTASA+0x1AE95E, (uintptr_t)"\x01\x22", 2);
 
@@ -69,24 +90,9 @@ void CProjectSA::Update()
 {
 	// Coronas
 	CProjectSA::Corona::dwCoronas = ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN8CCoronas8aCoronasE");
-
-	// Timers
-	CProjectSA::Timer::m_snTimeInMilliseconds = (uint16_t)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN6CTimer22m_snTimeInMillisecondsE");
-
-	// Clocks
-	CProjectSA::Clock::ms_nMillisecondsPerGameMinute = (uint16_t)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN6CClock29ms_nMillisecondsPerGameMinuteE");
-	CProjectSA::Clock::ms_nLastClockTick = (uint16_t)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN6CClock17ms_nLastClockTickE");
-	CProjectSA::Clock::ms_nGameClockMonths = (uint16_t)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN6CClock19ms_nGameClockMonthsE");
-	CProjectSA::Clock::ms_nGameClockDays = (uint16_t)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN6CClock17ms_nGameClockDaysE");
-	CProjectSA::Clock::ms_nGameClockHours = (uint16_t)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN6CClock18ms_nGameClockHoursE");
-	CProjectSA::Clock::ms_nGameClockMinutes = (uint16_t)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN6CClock20ms_nGameClockMinutesE");
-	CProjectSA::Clock::ms_nGameClockSeconds = (uint16_t)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN6CClock20ms_nGameClockSecondsE");
-	CProjectSA::Clock::CurrentDay = (uint8_t)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN6CClock10CurrentDayE");
-
+	
 	// Camera
 	CProjectSA::Camera::Scene = ARMHook::getSymbolAddress(GTASA_LIBNAME, "Scene");
-	CProjectSA::Camera::f3rdPersonCHairMultX = (float*)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN7CCamera22m_f3rdPersonCHairMultXE");
-	CProjectSA::Camera::f3rdPersonCHairMultY = (float*)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN7CCamera22m_f3rdPersonCHairMultYE");
 }
 
 void CProjectSA::Screen::Redirect(uintptr_t addr, uintptr_t toaddr)
@@ -181,14 +187,62 @@ void CProjectSA::Corona::destroyAllParticle()
 	}
 }
 
-void CProjectSA::Clock::normaliseGameClock()
+void CProjectSA::Clock::NormaliseGameClock()
 {
-	(( void (*)())(g_libGTASA+0x3E31C0+1))();
+    if (*ms_nGameClockSeconds >= 60) {
+        auto leftMins = *ms_nGameClockSeconds / 60;
+
+        // add leftover mins from second counter
+        *ms_nGameClockMinutes += leftMins;
+
+        // normalize second counter
+        *ms_nGameClockSeconds %= 60;
+    }
+
+    if (*ms_nGameClockMinutes >= 60) {
+        auto leftHours = *ms_nGameClockMinutes / 60;
+
+        // add leftover mins from minute counter
+        *ms_nGameClockHours += leftHours;
+
+        // normalize minute counter
+        *ms_nGameClockMinutes %= 60;
+    }
+
+    if (*ms_nGameClockHours >= 24) {
+        auto leftDays = *ms_nGameClockHours / 24;
+
+        // add leftover days from hour counter
+        *ms_nGameClockDays += leftDays;
+
+        // normalize hour counter
+        *ms_nGameClockHours %= 24;
+    }
+
+    if (*ms_nGameClockDays > 31) {
+        // new month
+        *ms_nGameClockDays = 1;
+
+        *ms_nGameClockMonths++;
+    }
+
+    if (*ms_nGameClockMonths > 12)
+        *ms_nGameClockMonths = 1;
 }
 
-void CProjectSA::Clock::setGameClock(uint8_t hours, uint8_t minutes, uint8_t day)
+void CProjectSA::Clock::SetGameClock(uint8_t hours, uint8_t minutes, uint8_t day)
 {
-	(( void (*)(uint8_t, uint8_t, uint8_t))(g_libGTASA+0x3E3070+1))(hours, minutes, day);
+    *ms_nLastClockTick = *CProjectSA::Timer::m_snTimeInMilliseconds;
+    *ms_nGameClockHours = hours;
+    *ms_nGameClockMinutes = minutes;
+
+    if (day) {
+        *CurrentDay = day;
+        ++*ms_nGameClockDays;
+    }
+
+    *ms_nGameClockSeconds = 0;
+    NormaliseGameClock();
 }
 
 // hooks
@@ -315,21 +369,21 @@ void CProjectSA::InitHooks()
 }
 
 // Coronas
-uint32_t CProjectSA::Corona::dwCoronas;
+uintptr_t CProjectSA::Corona::dwCoronas;
 uint32_t CProjectSA::Corona::dwParticleIDs[MAX_NUM_CORONAS];
 
 // Timers
-uint16_t CProjectSA::Timer::m_snTimeInMilliseconds;
+uint16_t *CProjectSA::Timer::m_snTimeInMilliseconds;
 
 // Clocks
-uint16_t CProjectSA::Clock::ms_nMillisecondsPerGameMinute;
-uint16_t CProjectSA::Clock::ms_nLastClockTick;
-uint16_t CProjectSA::Clock::ms_nGameClockMonths;
-uint16_t CProjectSA::Clock::ms_nGameClockDays;
-uint16_t CProjectSA::Clock::ms_nGameClockHours;
-uint16_t CProjectSA::Clock::ms_nGameClockMinutes;
-uint16_t CProjectSA::Clock::ms_nGameClockSeconds;
-uint8_t CProjectSA::Clock::CurrentDay;
+uint16_t *CProjectSA::Clock::ms_nMillisecondsPerGameMinute;
+uint16_t *CProjectSA::Clock::ms_nLastClockTick;
+uint16_t *CProjectSA::Clock::ms_nGameClockMonths;
+uint16_t *CProjectSA::Clock::ms_nGameClockDays;
+uint16_t *CProjectSA::Clock::ms_nGameClockHours;
+uint16_t *CProjectSA::Clock::ms_nGameClockMinutes;
+uint16_t *CProjectSA::Clock::ms_nGameClockSeconds;
+uint8_t *CProjectSA::Clock::CurrentDay;
 
 // Placeable
 uintptr_t CProjectSA::Placeable::gMatrixList;

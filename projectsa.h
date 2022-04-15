@@ -32,7 +32,7 @@ public:
     class Corona
     {
     public:
-        static uint32_t dwCoronas;
+        static uintptr_t dwCoronas;
         static uint32_t dwParticleIDs[MAX_NUM_CORONAS];
 
     public:
@@ -44,24 +44,24 @@ public:
     class Timer
     {
     public:
-        static uint16_t m_snTimeInMilliseconds;
+        static uint16_t *m_snTimeInMilliseconds;
     };
 
     class Clock
     {
     public:
-        static void normaliseGameClock();
-        static void setGameClock(uint8_t hours, uint8_t minutes, uint8_t day);
+        static void NormaliseGameClock();
+        static void SetGameClock(uint8_t hours, uint8_t minutes, uint8_t day);
 
     public:
-        static uint16_t ms_nMillisecondsPerGameMinute;
-        static uint16_t ms_nLastClockTick;
-        static uint16_t ms_nGameClockMonths;
-        static uint16_t ms_nGameClockDays;
-        static uint16_t ms_nGameClockHours;
-        static uint16_t ms_nGameClockMinutes;
-        static uint16_t ms_nGameClockSeconds;
-        static uint8_t CurrentDay;
+        static uint16_t *ms_nMillisecondsPerGameMinute;
+        static uint16_t *ms_nLastClockTick;
+        static uint16_t *ms_nGameClockMonths;
+        static uint16_t *ms_nGameClockDays;
+        static uint16_t *ms_nGameClockHours;
+        static uint16_t *ms_nGameClockMinutes;
+        static uint16_t *ms_nGameClockSeconds;
+        static uint8_t *CurrentDay;
     };
 
     class Screen

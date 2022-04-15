@@ -6,6 +6,7 @@ LOCAL_MODULE := projectsa
 LOCAL_LDLIBS := -llog
 
 # psa
+FILE_LIST := $(wildcard $(LOCAL_PATH)/addon/*.cpp)
 FILE_LIST := $(wildcard $(LOCAL_PATH)/*.cpp)
 FILE_LIST += $(wildcard $(LOCAL_PATH)/game/*.cpp)
 FILE_LIST += $(wildcard $(LOCAL_PATH)/util/*.cpp)
