@@ -1,8 +1,6 @@
 #include "../main.h"
 #include "game/game.h"
 
-extern CGame *pGame;
-
 void cp1251_to_utf8(char *out, const char *in, unsigned int len)
 {
     static const int table[128] = 
@@ -63,7 +61,6 @@ void FLog(const char *fmt, ...)
 	char buffer[0xFF];
 	static FILE* flLog = nullptr;
 
-	if(!pGame) return;
 	if(getGameDataStorage() && flLog == nullptr)
 	{
 		sprintf(buffer, "%spsa.log", getGameDataStorage());

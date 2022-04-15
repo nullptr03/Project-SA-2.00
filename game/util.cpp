@@ -163,15 +163,6 @@ float GetDrawDistanceModel(int iModel)
 	return *(float*)(modelInfo+0x30);
 }
 
-bool IsPointInRect(float x, float y, RECT* rect)
-{
-	if (x >= rect->fLeft && x <= rect->fRight &&
-		y >= rect->fBottom && y <= rect->fTop)
-		return true;
-
-	return false;
-}
-
 uintptr_t LoadTextureFromDB(const char* dbname, const char* texture)
 {
 	// TextureDatabaseRuntime::GetDatabase(dbname)
@@ -446,37 +437,6 @@ void DestroyAtomicOrClump(uintptr_t rwObject)
 	}
 }
 
-uintptr_t TextDrawTexture[200];
-bool bTextDrawTextureSlotState[200];
-
-int GetFreeTextDrawTextureSlot()
-{
-	for (int i = 0; i < 200; i++)
-	{
-		if(bTextDrawTextureSlotState[i] == false)
-		{
-			bTextDrawTextureSlotState[i] = true;
-			return i;
-		}
-	}
-	return -1;
-}
-
-void DestroyTextDrawTexture(int index)
-{
-	if(index > 0 && index < 200)
-	{
-		TextDrawTexture[index] = 0;
-		bTextDrawTextureSlotState[index] = false;
-	}
-}
-
-void ResetTextDrawTextures()
-{
-	memset(&TextDrawTexture, 0, 200);
-	memset(&bTextDrawTextureSlotState, 0, 200);
-}
-
 void DrawTextureUV(uintptr_t texture, RECT* rect, uint32_t dwColor, float *uv)
 {
 	if (texture)
@@ -488,27 +448,6 @@ void DrawTextureUV(uintptr_t texture, RECT* rect, uint32_t dwColor, float *uv)
 	}
 }
 
-RwObject * AtomicCallback(RwObject *rwObject, CObject *pObject)
-{
-	if(rwObject->type != 1) return rwObject;
-
-	RpAtomic *pAtomic = (RpAtomic *)rwObject;
-	if(!pAtomic) return rwObject;
-
-	RpGeometry *pGeometry = pAtomic->geometry;
-	if(!pGeometry) return rwObject;
-
-	int numMats = pGeometry->matList.numMaterials;
-	if(numMats > 16) numMats = 16;
-
-	for (int i = 0; i < numMats; i++)
-	{
-		RpMaterial* pMaterial = pGeometry->matList.materials[i];
-		if (!pMaterial) continue;
-	}
-	return rwObject;
-}
-
 float GetDistance(VECTOR *vec1, VECTOR *vec2)
 {
 	float fX = (vec1->X - vec2->X) * (vec1->X - vec2->X);
@@ -516,21 +455,6 @@ float GetDistance(VECTOR *vec1, VECTOR *vec2)
 	float fZ = (vec1->Z - vec2->Z) * (vec1->Z - vec2->Z);
 
 	return (float)sqrt(fX + fY + fZ);
-}
-
-void GamePrepareTrain(VEHICLE_TYPE *pVehicle)
-{
-	PED_TYPE *pDriver = pVehicle->pDriver;
-
-	// GET RID OF THE PED DRIVER CREATED
-	if(pDriver)
-	{
-		if (pDriver->dwPedType >= 2)
-		{
-			(( void (*)(PED_TYPE*))(*(void**)(pDriver->entity.vtable + 0x4)))(pDriver);
-			pVehicle->pDriver = 0;
-		}
-	}
 }
 
 void HideEntity(ENTITY_TYPE *pEntity)
@@ -541,135 +465,6 @@ void HideEntity(ENTITY_TYPE *pEntity)
 		if (pEntity->mat)
 			pEntity->mat->pos.Z -= 2000.0f;
 	}
-}
-
-void RemoveObjectFromGamePools(uint16_t wModel, float fX, float fY, float fZ, float fRadius)
-{
-	RemoveOcclusionsInRadius(fX, fY, fZ, 500.0);
-	
-	VECTOR vecPos = {0.0f, 0.0f, 0.0f};
-	VECTOR vecObjectPos = {fX, fY, fZ};
-
-	// CPools::ms_pBuildingPool
-	uintptr_t *pBuildingPool = *(uintptr_t**)(g_libGTASA+0x95AC4C);
-	for(int i = 0; i < 14000; i++)
-	{
-		ENTITY_TYPE *pEntity = (ENTITY_TYPE*)((i * 56) + *pBuildingPool);
-		if(pEntity && pEntity->vtable != g_libGTASA+0x667D24)
-		{
-			if(wModel == -1 || pEntity->nModelIndex == wModel)
-			{
-				vecPos = pEntity->vecPosBeforeMat;
-				if(pEntity->mat)
-					vecPos = pEntity->mat->pos;
-
-				float fDist = GetDistance(&vecObjectPos, &vecPos);
-				if(fDist <= fRadius)
-					HideEntity(pEntity);
-			}
-		}
-	}
-	
-	// CPools::ms_pObjectPool
-	uintptr_t *pObjectPool = *(uintptr_t**)(g_libGTASA+0x95AC50);
-	for(int i = 0; i < 350; i++)
-	{
-		ENTITY_TYPE *pEntity = (ENTITY_TYPE*)((i * 416) + *pObjectPool);
-		if(pEntity && pEntity->vtable != g_libGTASA+0x667D24)
-		{
-			if(wModel == -1 || pEntity->nModelIndex == wModel)
-			{
-				vecPos = pEntity->vecPosBeforeMat;
-				if(pEntity->mat)
-					vecPos = pEntity->mat->pos;
-				
-				float fDist = GetDistance(&vecObjectPos, &vecPos);
-				if(fDist <= fRadius)
-					HideEntity(pEntity);
-			}
-		}
-	}
-
-	// CPools::ms_pDummyPool
-	uintptr_t *pDummyPool = *(uintptr_t**)(g_libGTASA+0x95AC54);
-	for(int i = 0; i < 3500; i++)
-	{
-		ENTITY_TYPE *pEntity = (ENTITY_TYPE*)((i * 56) + *pDummyPool);
-		if(pEntity && pEntity->vtable != g_libGTASA+0x667D24)
-		{
-			if(wModel == -1 || pEntity->nModelIndex == wModel)
-			{
-				vecPos = pEntity->vecPosBeforeMat;
-				if(pEntity->mat)
-					vecPos = pEntity->mat->pos;
-				
-				float fDist = GetDistance(&vecObjectPos, &vecPos);
-				if(fDist <= fRadius)
-					HideEntity(pEntity);
-			}
-		}
-	}
-}
-
-void RemoveOcclusionsInRadius(float fX, float fY, float fZ, float fRadius)
-{
-	VECTOR vecPos = {fX, fY, fZ};
-	uintptr_t *numOccluders = (uintptr_t*)(g_libGTASA+0xA45790);
-	
-	if(*numOccluders)
-	{
-		uint32_t dwOccluders = g_libGTASA+0xA41140;
-		for(int i = 0; i <= *numOccluders; i++)
-		{
-			stOccluders *aOccluders = (stOccluders*)((i * 18) + dwOccluders);
-			
-			VECTOR vecOccluderPos;
-			vecOccluderPos.X = (float)aOccluders->fMidX * 0.25;
-			vecOccluderPos.Y = (float)aOccluders->fMidY * 0.25;
-			vecOccluderPos.Z = (float)aOccluders->fMidZ * 0.25;
-
-			float fDistance = GetDistance(&vecOccluderPos, &vecPos);
-			if(fDistance <= fRadius)
-			{
-				aOccluders->fMidX = 0;
-				aOccluders->fMidY = 0;
-				aOccluders->fMidZ = 0;
-				aOccluders->fWidthX = 0;
-				aOccluders->fWidthY = 0;
-				aOccluders->fHeight = 0;
-			}
-		}
-	}
-}
-
-int iBuildingToRemoveCount = 0;
-stRemoveBuilding BuildingToRemove[50000];
-
-void RemoveBuilding(uint16_t wModel, float fX, float fY, float fZ, float fRadius)
-{
-	RemoveObjectFromGamePools(wModel, fX, fY, fZ, fRadius);
-	
-	int iCount = iBuildingToRemoveCount;
-	BuildingToRemove[iCount].wModel = wModel;
-	BuildingToRemove[iCount].vecPos.X = fX;
-	BuildingToRemove[iCount].vecPos.Y = fY;
-	BuildingToRemove[iCount].vecPos.Z = fZ;
-	BuildingToRemove[iCount].fRadius = fRadius;
-	iBuildingToRemoveCount = iCount+1;
-}
-
-void CrossProduct(VECTOR *In, VECTOR *Out)
-{
-	float f1;
-  	float f2;
-  	float f3;
-
-  	f1 = atan2(In->X, In->Y) - 1.570796370506287f;
-  	f2 = sin(f1);
-  	f3 = cos(f1);
-  	Out->X = In->Y * 0.0f - f3 * In->Z;
-  	Out->Y = f2 * In->Z - In->X * 0.0f;
-  	Out->Z = f3 * In->X - f2 * In->Y;
 }
 
 const char *getGameDataStorage()
@@ -687,154 +482,4 @@ RwReal getRecipNearClip()
 {
 	// CSprite2d::RecipNearClip
 	return *(RwReal*)(g_libGTASA+0xA7C344);
-}
-
-bool IsVectorInWorldBounds(VECTOR *vec)
-{
-	return (bool)(	vec->X < 20000.0f && vec->X > -20000.0f &&
-					vec->Y < 20000.0f && vec->Y > -20000.0f &&
-					vec->Z < 100000.0f && vec->Z > -10000.0f );
-}
-
-uintptr_t GetWeaponInfo(int iWeapon, int iSkill)
-{
-	// CWeaponInfo::GetWeaponInfo
-	return (( uintptr_t (*)(int, int))(g_libGTASA+0x5E4298+1))(iWeapon, iSkill);
-}
-
-int GameGetWeaponModelIDFromWeaponID(int iWeaponID)
-{
-	switch (iWeaponID)
-	{
-	case WEAPON_BRASSKNUCKLE:
-		return WEAPON_MODEL_BRASSKNUCKLE;
-
-	case WEAPON_GOLFCLUB:
-		return WEAPON_MODEL_GOLFCLUB;
-
-	case WEAPON_NITESTICK:
-		return WEAPON_MODEL_NITESTICK;
-
-	case WEAPON_KNIFE:
-		return WEAPON_MODEL_KNIFE;
-
-	case WEAPON_BAT:
-		return WEAPON_MODEL_BAT;
-
-	case WEAPON_SHOVEL:
-		return WEAPON_MODEL_SHOVEL;
-
-	case WEAPON_POOLSTICK:
-		return WEAPON_MODEL_POOLSTICK;
-
-	case WEAPON_KATANA:
-		return WEAPON_MODEL_KATANA;
-
-	case WEAPON_CHAINSAW:
-		return WEAPON_MODEL_CHAINSAW;
-
-	case WEAPON_DILDO:
-		return WEAPON_MODEL_DILDO;
-
-	case WEAPON_DILDO2:
-		return WEAPON_MODEL_DILDO2;
-
-	case WEAPON_VIBRATOR:
-		return WEAPON_MODEL_VIBRATOR;
-
-	case WEAPON_VIBRATOR2:
-		return WEAPON_MODEL_VIBRATOR2;
-
-	case WEAPON_FLOWER:
-		return WEAPON_MODEL_FLOWER;
-
-	case WEAPON_CANE:
-		return WEAPON_MODEL_CANE;
-
-	case WEAPON_GRENADE:
-		return WEAPON_MODEL_GRENADE;
-
-	case WEAPON_TEARGAS:
-		return WEAPON_MODEL_TEARGAS;
-
-	case WEAPON_MOLTOV:
-		return WEAPON_MODEL_MOLTOV;
-
-	case WEAPON_COLT45:
-		return WEAPON_MODEL_COLT45;
-
-	case WEAPON_SILENCED:
-		return WEAPON_MODEL_SILENCED;
-
-	case WEAPON_DEAGLE:
-		return WEAPON_MODEL_DEAGLE;
-
-	case WEAPON_SHOTGUN:
-		return WEAPON_MODEL_SHOTGUN;
-
-	case WEAPON_SAWEDOFF:
-		return WEAPON_MODEL_SAWEDOFF;
-
-	case WEAPON_SHOTGSPA:
-		return WEAPON_MODEL_SHOTGSPA;
-
-	case WEAPON_UZI:
-		return WEAPON_MODEL_UZI;
-
-	case WEAPON_MP5:
-		return WEAPON_MODEL_MP5;
-
-	case WEAPON_AK47:
-		return WEAPON_MODEL_AK47;
-
-	case WEAPON_M4:
-		return WEAPON_MODEL_M4;
-
-	case WEAPON_TEC9:
-		return WEAPON_MODEL_TEC9;
-
-	case WEAPON_RIFLE:
-		return WEAPON_MODEL_RIFLE;
-
-	case WEAPON_SNIPER:
-		return WEAPON_MODEL_SNIPER;
-
-	case WEAPON_ROCKETLAUNCHER:
-		return WEAPON_MODEL_ROCKETLAUNCHER;
-
-	case WEAPON_HEATSEEKER:
-		return WEAPON_MODEL_HEATSEEKER;
-
-	case WEAPON_FLAMETHROWER:
-		return WEAPON_MODEL_FLAMETHROWER;
-
-	case WEAPON_MINIGUN:
-		return WEAPON_MODEL_MINIGUN;
-
-	case WEAPON_SATCHEL:
-		return WEAPON_MODEL_SATCHEL;
-
-	case WEAPON_BOMB:
-		return WEAPON_MODEL_BOMB;
-
-	case WEAPON_SPRAYCAN:
-		return WEAPON_MODEL_SPRAYCAN;
-
-	case WEAPON_FIREEXTINGUISHER:
-		return WEAPON_MODEL_FIREEXTINGUISHER;
-
-	case WEAPON_CAMERA:
-		return WEAPON_MODEL_CAMERA;
-
-	case WEAPON_NIGHTVISION:
-		return WEAPON_MODEL_NIGHTVISION;
-
-	case WEAPON_INFRARED:
-		return WEAPON_MODEL_INFRARED;
-
-	case WEAPON_PARACHUTE:
-		return WEAPON_MODEL_PARACHUTE;
-	}
-
-	return -1;
 }

@@ -38,12 +38,11 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define PSA_VERSION	    "0.1.0a"
-#define GAME_VERSION	"2.00"
-
 #include "util/util.h"
+
+#include "projectsa.h"
+
+#define GTASA_LIBNAME "lib_GTA3.so"
 
 extern uintptr_t g_libPSA;
 extern uintptr_t g_libGTASA;
-
-uint32_t GetTickCount();

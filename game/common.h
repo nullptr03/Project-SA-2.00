@@ -4,11 +4,6 @@
 
 class CPedIntelligence;
 
-#define PLAYER_PED_SLOTS	210
-
-typedef unsigned short VEHICLEID;
-typedef unsigned short PLAYERID;
-
 #define PADDING(x, y) uint8_t x[y]
 
 #define IN_VEHICLE(x) ((x->dwStateFlags & 0x100) >> 8)
@@ -27,6 +22,12 @@ typedef struct _VECTOR
 {
 	float X, Y, Z;
 } VECTOR, *PVECTOR;
+
+#pragma pack(1)
+typedef struct _VECTOR2D
+{
+	float X, Y;
+} VECTOR2D, *PVECTOR2D;
 
 #pragma pack(1)
 typedef struct _MATRIX4X4 
@@ -176,35 +177,6 @@ typedef struct _VEHICLE_TYPE
 } VEHICLE_TYPE;
 
 #pragma pack(1)
-typedef struct _BULLET_DATA
-{
-	VECTOR vecOrigin;
-	VECTOR vecPos;
-	VECTOR vecOffset;
-	ENTITY_TYPE* pEntity;
-} BULLET_DATA;
-
-#pragma pack(1)
-typedef struct _NEW_ATTACHED_OBJECT
-{
-	int			iModel;
-	int			iBone;
-	VECTOR		vecOffset;
-	VECTOR		vecRotation;
-	VECTOR		vecScale;
-	uint32_t 	dwMaterialColor1;
-	uint32_t	dwMaterialColor2;
-} NEW_ATTACHED_OBJECT;
-
-#pragma pack(1)
-typedef struct
-{
-	uint16_t wModel;
-	VECTOR vecPos;
-	float fRadius;
-} stRemoveBuilding;
-
-#pragma pack(1)
 typedef struct _PED_MODEL
 {
 	uintptr_t 	vtable;
@@ -254,21 +226,6 @@ typedef struct _PED_DAMAGE
 	uint32_t		dwweaponType;
 	bool			bSpeak;
 } PED_DAMAGE;
-
-#define	VEHICLE_SUBTYPE_CAR				1
-#define	VEHICLE_SUBTYPE_BIKE			2
-#define	VEHICLE_SUBTYPE_HELI			3
-#define	VEHICLE_SUBTYPE_BOAT			4
-#define	VEHICLE_SUBTYPE_PLANE			5
-#define	VEHICLE_SUBTYPE_PUSHBIKE		6
-#define	VEHICLE_SUBTYPE_TRAIN			7
-
-#define TRAIN_PASSENGER_LOCO			538
-#define TRAIN_FREIGHT_LOCO				537
-#define TRAIN_PASSENGER					570
-#define TRAIN_FREIGHT					569
-#define TRAIN_TRAM						449
-#define HYDRA							520
 
 #define ACTION_WASTED					55
 #define ACTION_DEATH					54

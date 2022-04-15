@@ -11,21 +11,15 @@
 #include "SA/txdstore.h"
 #include "SA/widget.h"
 
-#include "projectsa.h"
-#include "quaternion.h"
 #include "scripting.h"
 #include "util.h"
 
 class CGame
 {
 public:
-	CGame();
+	CGame() {};
 	~CGame() {};
-	
-	void Process();
 	
 	bool IsGamePaused();
 	float GetFPS();
-
-	int IsLineOfSightClear(float fX, float fY, float fZ);
 };

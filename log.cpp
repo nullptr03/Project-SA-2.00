@@ -27,7 +27,7 @@ void PrintAddressInfo(const char *crashId, void* pc, void* lr)
 
 void Log::Initialize()
 {
-	Log::_session_start_tick = GetTickCount();
+	Log::_session_start_tick = rand() % 10000;
 	Log::InstallExceptionHandler();
 }
 
@@ -95,7 +95,7 @@ void Log::handler(int signum, siginfo_t *info, void* contextPtr)
 	
 	Log::SendCrashLog("segv", "Exception At Address: 0x%X", info->si_addr);
 	
-	Log::SendCrashLog("segv", "SCM Op: 0x%X, lDbg: %d LastRendObj: %u", dwScmOpcodeDebug, bScmLocalDebug, nCurrentRenderObject);
+	Log::SendCrashLog("segv", "SCM Op: 0x%X, lDbg: %d", dwScmOpcodeDebug, bScmLocalDebug);
 
 	Log::SendCrashLog("segv", "libGTASA.so base address: 0x%X", g_libGTASA);
 	Log::SendCrashLog("segv", "libprojectsa.so base address: 0x%X", g_libPSA);
@@ -144,7 +144,7 @@ void Log::handler1(int signum, siginfo_t *info, void* contextPtr)
 	
 	Log::SendCrashLog("abrt", "Exception At Address: 0x%X", info->si_addr);
 	
-	Log::SendCrashLog("abrt", "SCM Op: 0x%X, lDbg: %d LastRendObj: %u", dwScmOpcodeDebug, bScmLocalDebug, nCurrentRenderObject);
+	Log::SendCrashLog("abrt", "SCM Op: 0x%X, lDbg: %d", dwScmOpcodeDebug, bScmLocalDebug);
 
 	Log::SendCrashLog("abrt", "libGTASA.so base address: 0x%X", g_libGTASA);
 	Log::SendCrashLog("abrt", "libprojectsa.so base address: 0x%X", g_libPSA);
@@ -193,7 +193,7 @@ void Log::handler2(int signum, siginfo_t *info, void* contextPtr)
 	
 	Log::SendCrashLog("fpe", "Exception At Address: 0x%X", info->si_addr);
 
-	Log::SendCrashLog("fpe", "SCM Op: 0x%X, lDbg: %d LastRendObj: %u", dwScmOpcodeDebug, bScmLocalDebug, nCurrentRenderObject);
+	Log::SendCrashLog("fpe", "SCM Op: 0x%X, lDbg: %d", dwScmOpcodeDebug, bScmLocalDebug);
 
 	Log::SendCrashLog("fpe", "libGTASA.so base address: 0x%X", g_libGTASA);
 	Log::SendCrashLog("fpe", "libprojectsa.so base address: 0x%X", g_libPSA);
@@ -242,7 +242,7 @@ void Log::handler3(int signum, siginfo_t *info, void* contextPtr)
 	
 	Log::SendCrashLog("bus", "Exception At Address: 0x%X", info->si_addr);
 
-	Log::SendCrashLog("bus", "SCM Op: 0x%X, lDbg: %d LastRendObj: %u", dwScmOpcodeDebug, bScmLocalDebug, nCurrentRenderObject);
+	Log::SendCrashLog("bus", "SCM Op: 0x%X, lDbg: %d", dwScmOpcodeDebug, bScmLocalDebug);
 
 	Log::SendCrashLog("bus", "libGTASA.so base address: 0x%X", g_libGTASA);
 	Log::SendCrashLog("bus", "libprojectsa.so base address: 0x%X", g_libPSA);

@@ -125,10 +125,10 @@ void InitializeRenderWare()
 	*(void **)(&RwIm2DGetFarScreenZ)			= (void*)(g_libGTASA+0x1E2904+1);
 	*(void **)(&RwRenderStateGet)				= (void*)(g_libGTASA+0x1E2948+1);
 	*(void **)(&RwRenderStateSet)				= (void*)(g_libGTASA+0x1E2914+1);
-	*(void **)(&RwIm2DRenderLine)				= (void*)(g_libGTASA+0x1E2958+1);
-	*(void **)(&RwIm2DRenderTriangle)			= (void*)(g_libGTASA+0x1E2970+1);
-	*(void **)(&RwIm2DRenderPrimitive)			= (void*)(g_libGTASA+0x1E2988+1);
-	*(void **)(&RwIm2DRenderIndexedPrimitive)	= (void*)(g_libGTASA+0x1E2998+1);
+	*(void **)(&RwIm2DRenderLine)				= (void*)(g_libGTASA+0x5D16AE +1); // Bug fix
+	*(void **)(&RwIm2DRenderTriangle)			= (void*)(g_libGTASA+0x5D16AA+1); // Bug fix
+	*(void **)(&RwIm2DRenderPrimitive)			= (void*)(g_libGTASA+0x5D16A2+1); // Bug fix
+	*(void **)(&RwIm2DRenderIndexedPrimitive)	= (void*)(g_libGTASA+0x5D16A6+1); // Bug fix
 
 	/* rtpng.h */
 	*(void **)(&RtPNGImageWrite)				= (void*)(g_libGTASA+0x20A1C4+1);

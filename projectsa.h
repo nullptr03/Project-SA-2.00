@@ -10,7 +10,11 @@ class CProjectSA
 {
 public:
     static void InitPatch();
+    static void InitHooks();
     static void Update();
+
+    static int (*Idle_orig)(void *thiz, bool a2);
+    static int Idle_hook(void *thiz, bool a2);
 
 public:
     class FPSFix
@@ -64,5 +68,44 @@ public:
     {
     public:
         static void Redirect(uintptr_t addr, uintptr_t toaddr);
+    };
+
+    class Camera
+    {
+    public:
+        static uintptr_t Scene;
+        static float *f3rdPersonCHairMultX;
+        static float *f3rdPersonCHairMultY;
+    };
+
+    class Hud
+    {
+    public:
+        static void (*DrawCrossHairs_orig)();
+        static void DrawCrossHairs_hook();
+    };
+
+    class Placeable
+    {
+    public:
+        static uintptr_t gMatrixList;
+
+    public:
+        static int (*InitMatrixArray_orig)();
+        static int InitMatrixArray_hook();
+    };
+
+    class Pools
+    {
+    public:
+        static void (*Initialise_orig)();
+        static void Initialise_hook();
+    };
+
+    class AND
+    {
+    public:
+        static void (*RunThread_orig)(void *a1);
+        static void RunThread_hook(void *a1);
     };
 };
