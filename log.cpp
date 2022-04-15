@@ -39,7 +39,7 @@ void Log::SendCrashLog(const char *crashId, const char *fmt, ...)
 	if(!pGame) return;
 	if(flLog == nullptr)
 	{
-		sprintf(buffer, "%sSAMP/crash_%s.log", getGameDataStorage(), crashId);
+		sprintf(buffer, "%s/crash_%s.log", getGameDataStorage(), crashId);
 		flLog = fopen(buffer, "w");
 	}
 

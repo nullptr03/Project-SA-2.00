@@ -8,6 +8,9 @@ CProjectSA::FPSFix *g_fpsFix = new CProjectSA::FPSFix();
 
 void CProjectSA::InitPatch()
 {
+	// Placeable
+	CProjectSA::Placeable::gMatrixList = ARMHook::getSymbolAddress(GTASA_LIBNAME, "gMatrixList");
+
 	// _rwOpenGLRasterCreate
 	ARMHook::writeMemory(g_libGTASA+0x1AE95E, (uintptr_t)"\x01\x22", 2);
 
@@ -84,9 +87,6 @@ void CProjectSA::Update()
 	CProjectSA::Camera::Scene = ARMHook::getSymbolAddress(GTASA_LIBNAME, "Scene");
 	CProjectSA::Camera::f3rdPersonCHairMultX = (float*)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN7CCamera22m_f3rdPersonCHairMultXE");
 	CProjectSA::Camera::f3rdPersonCHairMultY = (float*)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN7CCamera22m_f3rdPersonCHairMultYE");
-
-	// Placeable
-	CProjectSA::Placeable::gMatrixList = ARMHook::getSymbolAddress(GTASA_LIBNAME, "gMatrixList");
 }
 
 void CProjectSA::Screen::Redirect(uintptr_t addr, uintptr_t toaddr)
