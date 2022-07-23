@@ -42,7 +42,7 @@
 
 #include "projectsa.h"
 
-#define GTASA_LIBNAME "lib_GTA3.so"
+#define GTASA_LIBNAME "libGTASA.so"
 
 extern uintptr_t g_libPSA;
 extern uintptr_t g_libGTASA;

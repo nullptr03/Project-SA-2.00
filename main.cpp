@@ -19,15 +19,11 @@ extern "C" void OnModLoad()
 {
 	__android_log_print(ANDROID_LOG_DEBUG, "AXLD", "Project SA library loaded from AML! Build time: " __DATE__ " " __TIME__);
 
-	g_libGTASA = ARMHook::getLibraryAddress("libGTASA.so");
+	g_libGTASA = ARMHook::getLibraryAddress(GTASA_LIBNAME);
 	if(g_libGTASA == 0)
 	{
-		g_libGTASA = ARMHook::getLibraryAddress(GTASA_LIBNAME);
-		if(g_libGTASA == 0)
-		{
-			__android_log_print(ANDROID_LOG_ERROR, "AXLD", "Failed to find " GTASA_LIBNAME "!");
-			return;
-		}
+		__android_log_print(ANDROID_LOG_ERROR, "AXLD", "Failed to find " GTASA_LIBNAME "!");
+		return;
 	}
 
 	ARMHook::makeRET(g_libGTASA+0x3F6580);
@@ -58,15 +54,11 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved)
 {
 	__android_log_print(ANDROID_LOG_DEBUG, "AXLD", "Project SA library loaded! Build time: " __DATE__ " " __TIME__);
 
-	g_libGTASA = ARMHook::getLibraryAddress("libGTASA.so");
+	g_libGTASA = ARMHook::getLibraryAddress(GTASA_LIBNAME);
 	if(g_libGTASA == 0)
 	{
-		g_libGTASA = ARMHook::getLibraryAddress(GTASA_LIBNAME);
-		if(g_libGTASA == 0)
-		{
-			__android_log_print(ANDROID_LOG_ERROR, "AXLD", "Failed to find " GTASA_LIBNAME "!");
-			return 0;
-		}
+		__android_log_print(ANDROID_LOG_ERROR, "AXLD", "Failed to find " GTASA_LIBNAME "!");
+		return 0;
 	}
 
 	g_libPSA = ARMHook::getLibraryAddress("libprojectsa.so");

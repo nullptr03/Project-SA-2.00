@@ -11,9 +11,6 @@ void CProjectSA::InitPatch()
 	// Placeable
 	CProjectSA::Placeable::gMatrixList = ARMHook::getSymbolAddress(GTASA_LIBNAME, "gMatrixList");
 
-	// Coronas
-	CProjectSA::Corona::dwCoronas = ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN8CCoronas8aCoronasE");
-
 	// Timers
 	CProjectSA::Timer::m_snTimeInMilliseconds = (uint16_t*)ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN6CTimer22m_snTimeInMillisecondsE");
 
@@ -88,9 +85,6 @@ void CProjectSA::InitPatch()
 
 void CProjectSA::Update()
 {
-	// Coronas
-	CProjectSA::Corona::dwCoronas = ARMHook::getSymbolAddress(GTASA_LIBNAME, "_ZN8CCoronas8aCoronasE");
-	
 	// Camera
 	CProjectSA::Camera::Scene = ARMHook::getSymbolAddress(GTASA_LIBNAME, "Scene");
 }
@@ -144,47 +138,6 @@ void CProjectSA::FPSFix::PushThread(pid_t tid)
 {
 	std::lock_guard<std::mutex> lock(Mutex);
 	Threads.push_back(tid);
-}
-
-void CProjectSA::Corona::createParticle(float size)
-{
-	for(int i = 0; i < MAX_NUM_CORONAS; i++)
-	{
-		CRegisteredCorona *aCoronas = (CRegisteredCorona*)((i * 60) + dwCoronas);
-		if( aCoronas->m_nFadeState > 0 || 
-			aCoronas->m_bRegisteredThisFrame > 0 ||
-			aCoronas->m_nFlareType > FLARETYPE_NONE )
-		{
-			dwParticleIDs[i] = ScriptCommand(&create_particle_at, 3, 0.0f, size, 5.5f, 255, aCoronas->m_nFadeState, aCoronas->m_bRegisteredThisFrame, 
-											aCoronas->m_nFlareType, aCoronas->m_vPosn.X, aCoronas->m_vPosn.Y, aCoronas->m_vPosn.Z);
-		}
-	}
-}
-
-void CProjectSA::Corona::destroyParticle(uint32_t dwID)
-{
-	if(dwID)
-	{
-		ScriptCommand(&destroy_particle, dwID);
-
-		for(int i = 0; i < MAX_NUM_CORONAS; i++)
-		{
-			if(dwParticleIDs[i] == dwID)
-				dwParticleIDs[i] = 0;
-		}
-	}
-}
-
-void CProjectSA::Corona::destroyAllParticle()
-{
-	for(int i = 0; i < MAX_NUM_CORONAS; i++)
-	{
-		if(dwParticleIDs[i])
-		{
-			ScriptCommand(&destroy_particle, dwParticleIDs[i]);
-			dwParticleIDs[i] = 0;
-		}
-	}
 }
 
 void CProjectSA::Clock::NormaliseGameClock()
@@ -246,7 +199,6 @@ void CProjectSA::Clock::SetGameClock(uint8_t hours, uint8_t minutes, uint8_t day
 }
 
 // hooks
-
 void (*CProjectSA::Hud::DrawCrossHairs_orig)();
 void CProjectSA::Hud::DrawCrossHairs_hook()
 {
@@ -367,10 +319,6 @@ void CProjectSA::InitHooks()
 	ARMHook::installPLTHook(g_libGTASA+0x672468, (uintptr_t)CProjectSA::Pools::Initialise_hook, (uintptr_t*)&CProjectSA::Pools::Initialise_orig);
 	ARMHook::installPLTHook(g_libGTASA+0x672880, (uintptr_t)CProjectSA::Hud::DrawCrossHairs_hook, (uintptr_t*)&CProjectSA::Hud::DrawCrossHairs_orig);
 }
-
-// Coronas
-uintptr_t CProjectSA::Corona::dwCoronas;
-uint32_t CProjectSA::Corona::dwParticleIDs[MAX_NUM_CORONAS];
 
 // Timers
 uint16_t *CProjectSA::Timer::m_snTimeInMilliseconds;

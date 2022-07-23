@@ -29,18 +29,6 @@ public:
         void PushThread(pid_t tid);
     };
 
-    class Corona
-    {
-    public:
-        static uintptr_t dwCoronas;
-        static uint32_t dwParticleIDs[MAX_NUM_CORONAS];
-
-    public:
-        static void createParticle(float size = 1.0f);
-        static void destroyParticle(uint32_t dwID);
-        static void destroyAllParticle();
-    };
-
     class Timer
     {
     public:
